@@ -1,0 +1,4 @@
+django==5.2.19
+psycopg2-binary==2.9.9
+reportlab==3.6.12
+django-jazzmin==3.0.1

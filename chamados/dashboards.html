@@ -1,0 +1,124 @@
+{% extends 'chamados/base.html' %}
+
+{% block title %}Dashboard Financeiro e Operacional{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2>📊 Dashboard & Relatórios Financeiros</h2>
+        <p class="text-muted">Acompanhamento visual do faturamento, custos de peças, lucro líquido e desempenho da equipa.</p>
+    </div>
+</div>
+
+<!-- Cartões de Indicadores Financeiros (KPIs) -->
+<div class="row text-white mb-4">
+    <div class="col-md-4">
+        <div class="card bg-success shadow-sm p-3 border-0">
+            <h5>Faturamento do Mês</h5>
+            <h3>R$ {{ faturamento_total|floatformat:2 }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-danger shadow-sm p-3 border-0">
+            <h5>Gastos / Peças</h5>
+            <h3>R$ {{ gastos_total|floatformat:2 }}</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-primary shadow-sm p-3 border-0">
+            <h5>Lucro Líquido</h5>
+            <h3>R$ {{ lucro_total|floatformat:2 }}</h3>
+        </div>
+    </div>
+</div>
+
+<!-- Seção de Gráficos (Chart.js) -->
+<div class="row mb-4">
+    <!-- Gráfico de Colunas: Resumo Financeiro -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 p-4">
+            <h5 class="mb-3 text-secondary">📈 Resumo Financeiro (R$)</h5>
+            <canvas id="financeiroChart" height="150"></canvas>
+        </div>
+    </div>
+
+    <!-- Gráfico de Rosca: Status das OS -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 p-4">
+            <h5 class="mb-3 text-secondary">🍩 Distribuição de OS por Status</h5>
+            <canvas id="statusChart" height="150"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Tabela de Produtividade dos Técnicos -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow-sm border-0 p-4">
+            <h4 class="mb-3">🛠️ Desempenho por Técnico</h4>
+            <table class="table table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Técnico</th>
+                        <th>Total de OS Atribuídas</th>
+                        <th>Valor Gerado (R$)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in tecnicos_stats %}
+                    <tr>
+                        <td><strong>{{ stat.tecnico__username|default:"Não atribuído" }}</strong></td>
+                        <td><span class="badge bg-secondary">{{ stat.total_os }}</span></td>
+                        <td>R$ {{ stat.faturamento|default:0|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">Nenhum dado registado para este mês.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Importação do Chart.js via CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Gráfico de Colunas (Financeiro)
+    const ctxFinanceiro = document.getElementById('financeiroChart').getContext('2d');
+    new Chart(ctxFinanceiro, {
+        type: 'bar',
+        data: {
+            labels: ['Faturamento', 'Gastos', 'Lucro Líquido'],
+            datasets: [{
+                label: 'Valores em R$',
+                data: [{{ faturamento_total }}, {{ gastos_total }}, {{ lucro_total }}],
+                backgroundColor: ['#198754', '#dc3545', '#0d6efd'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // Gráfico de Rosca (Status das OS)
+    const ctxStatus = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pendentes', 'Em Andamento', 'Concluídos', 'Cancelados'],
+            datasets: [{
+                data: [
+                    {{ qtd_pendente }},
+                    {{ qtd_andamento }},
+                    {{ qtd_concluido }},
+                    {{ qtd_cancelado }}
+                ],
+                backgroundColor: ['#ffc107', '#0d6efd', '#198754', '#dc3545']
+            }]
+        }
+    });
+</script>
+{% endblock %}

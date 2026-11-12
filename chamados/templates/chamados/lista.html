@@ -1,0 +1,60 @@
+{% extends 'chamados/base.html' %}
+
+{% block title %}Lista de Ordens de Serviço{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2>Ordens de Serviço Ativas</h2>
+        <p class="text-muted mb-0">Acompanhamento e consulta de atendimento para a recepção.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 p-3">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>#OS</th>
+                    <th>Cliente</th>
+                    <th>Equipamento</th>
+                    <th>Status Atual</th>
+                    <th>Valor (R$)</th>
+                    <th>Data Abertura</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for chamado in chamados %}
+                <tr>
+                    <td><strong>OS #{{ chamado.id }}</strong></td>
+                    <td>{{ chamado.cliente.nome }}</td>
+                    <td>
+    <a href="{% url 'gerar_pdf_os' chamado.id %}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Imprimir Comprovativo PDF">
+        📄 PDF
+    </a>
+</td>
+                    <td>{{ chamado.titulo_equipamento }}</td>
+                    <td>
+                        {% if chamado.status == 'PENDENTE' %}
+                            <span class="badge bg-warning text-dark">Pendente</span>
+                        {% elif chamado.status == 'ANDAMENTO' %}
+                            <span class="badge bg-primary">Em Andamento</span>
+                        {% elif chamado.status == 'CONCLUIDO' %}
+                            <span class="badge bg-success">Concluído</span>
+                        {% else %}
+                            <span class="badge bg-danger">Cancelado</span>
+                        {% endif %}
+                    </td>
+                    <td>R$ {{ chamado.valor_orcamento|floatformat:2 }}</td>
+                    <td>{{ chamado.data_abertura|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">Nenhuma ordem de serviço cadastrada ainda.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

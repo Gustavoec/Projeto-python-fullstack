@@ -1,0 +1,114 @@
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block content %}
+{% extends "admin/index.html" %}
+{% load static %}
+
+{% block content %}
+<!-- TESTE DE VISUALIZAÇÃO -->
+<div class="alert alert-info m-3">
+    <h4>🚀 O MEU TEMPLATE PERSONALIZADO ESTÁ ATIVO!</h4>
+    <p>Faturamento: R$ {{ faturamento_total }} | Lucro: R$ {{ lucro_total }}</p>
+</div>
+<!-- FIM DO TESTE -->
+
+<div class="container-fluid mb-4">
+    <!-- Restante do código dos cartões e gráficos... -->
+
+
+
+<div class="container-fluid mb-4">
+    <!-- Cartões de Resumo Financeiro -->
+    <div class="row">
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>R$ {{ faturamento_total|floatformat:2 }}</h3>
+                    <p>Faturamento do Mês</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>R$ {{ gastos_total|floatformat:2 }}</h3>
+                    <p>Gastos / Peças (Mês)</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-12">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3>R$ {{ lucro_total|floatformat:2 }}</h3>
+                    <p>Lucro Líquido</p>
+                </div>
+                <div class="icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 p-3">
+                <h5 class="mb-3 text-secondary">📈 Resumo Financeiro (R$)</h5>
+                <canvas id="financeiroChart" height="140"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 p-3">
+                <h5 class="mb-3 text-secondary">🍕 Distribuição de OS por Status</h5>
+                <canvas id="statusChart" height="140"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{ block.super }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        const ctxFinanceiro = document.getElementById('financeiroChart').getContext('2d');
+        new Chart(ctxFinanceiro, {
+            type: 'bar',
+            data: {
+                labels: ['Faturamento', 'Gastos', 'Lucro'],
+                datasets: [{
+                    label: 'Valores em R$',
+                    data: [{{ faturamento_total }}, {{ gastos_total }}, {{ lucro_total }}],
+                    backgroundColor: ['#198754', '#dc3545', '#0dcaf0'],
+                    borderWidth: 1
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+
+        const ctxStatus = document.getElementById('statusChart').getContext('2d');
+        new Chart(ctxStatus, {
+            type: 'pie',
+            data: {
+                labels: ['Pendentes', 'Em Andamento', 'Concluídos', 'Cancelados'],
+                datasets: [{
+                    data: [
+                        {{ qtd_pendente|default:0 }},
+                        {{ qtd_andamento|default:0 }},
+                        {{ qtd_concluido|default:0 }},
+                        {{ qtd_cancelado|default:0 }}
+                    ],
+                    backgroundColor: ['#ffc107', '#0d6efd', '#198754', '#dc3545']
+                }]
+            }
+        });
+    });
+</script>
+{% endblock %}

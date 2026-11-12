@@ -1,0 +1,15 @@
+# Python / Cache
+*.pyc
+__pycache__/
+db.sqlite3
+
+# IDE
+.idea/
+
+# Ambiente Virtual
+.venv/
+venv/
+env/
+
+# Docker
+.docker/
